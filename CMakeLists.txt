@@ -8,6 +8,8 @@ project(cpp-playground VERSION 0.1.0)
 find_package(Catch2 CONFIG REQUIRED)
 find_package(rxcpp CONFIG REQUIRED)
 
-add_executable(tests tests-starter.cpp)
-target_link_libraries(tests PRIVATE Catch2::Catch2 Catch2::Catch2WithMain)
-target_link_libraries(tests PRIVATE rxcpp)
+file(GLOB SOURCES "*.cpp" "*.cc")
+
+add_executable(test ${SOURCES})
+target_link_libraries(test PRIVATE Catch2::Catch2 Catch2::Catch2WithMain)
+target_link_libraries(test PRIVATE rxcpp)

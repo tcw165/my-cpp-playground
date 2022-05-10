@@ -36,11 +36,13 @@
 .vscode
 
 # CMake
+*.cmake
 build
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
+DartConfiguration.tcl
 Testing
 Makefile
 cmake_install.cmake
