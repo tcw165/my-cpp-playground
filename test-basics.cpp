@@ -1,16 +1,16 @@
 #include <catch2/catch.hpp>
 #include <iostream>
 
-class Slave
+class Counter
 {
 public:
-    explicit Slave(std::function<void()> ctor, std::function<void()> dtor) : ctor_(std::move(ctor)), dtor_(std::move(dtor)) {
-        std::cerr << "Slave() called" << std::endl;
+    explicit Counter(std::function<void()> ctor, std::function<void()> dtor) : ctor_(std::move(ctor)), dtor_(std::move(dtor)) {
+        std::cerr << "Counter() called" << std::endl;
         ctor_();
     };
 
-    ~Slave() {
-        std::cerr << "~Slave() called" << std::endl;
+    ~Counter() {
+        std::cerr << "~Counter() called" << std::endl;
         dtor_();
     };
 
@@ -18,30 +18,40 @@ public:
     std::function<void()> dtor_;
 };
 
-class Host
+class Foo
 {
 public:
-    explicit Host(std::function<void()> ctor, std::function<void()> dtor) : foo_(std::make_unique<Slave>(std::move(ctor), std::move(dtor))) {
-        std::cerr << "Host() called" << std::endl;
+    explicit Foo(std::function<void()> ctor, std::function<void()> dtor) : foo_(std::make_unique<Counter>(std::move(ctor), std::move(dtor))) {
+        std::cerr << "Foo() called" << std::endl;
     };
-    ~Host() {
-        std::cerr << "~Host() called" << std::endl;
+    ~Foo() {
+        std::cerr << "~Foo() called" << std::endl;
     };
 
-    std::unique_ptr<Slave> foo_;
+    std::unique_ptr<Counter> foo_;
 };
 
-TEST_CASE("memory management", "[Basic]")
+SCENARIO("class member is recycled automatically", "[Basic]")
 {
-    SECTION("if property is recycled automatically") {
-        auto count = 0;
-        auto increment = [&] { ++count; std::cerr << "ctor() called" << std::endl; };
-        auto decrement = [&] { --count; std::cerr << "dtor() called" << std::endl; };
+    auto count = 0;
+    auto increment = [&] { ++count; std::cerr << "ctor() called" << std::endl; };
+    auto decrement = [&] { --count; std::cerr << "dtor() called" << std::endl; };
 
-        {
-            Host tester(increment, decrement);
-        }
+    {
+        Foo tester(increment, decrement);
+    }
 
-        REQUIRE(count == 0);
-    };
+    REQUIRE(count == 0);
+}
+
+SCENARIO("unamed object gets destroyed after eval", "[Basic]")
+{
+    auto count = 0;
+    auto increment = [&] { ++count; std::cerr << "ctor() called" << std::endl; };
+    auto decrement = [&] { --count; std::cerr << "dtor() called" << std::endl; };
+
+    std::cerr << "before unamed object instantiation" << std::endl;
+    Counter{ increment, decrement };
+    std::cerr << "after unamed object instantiation" << std::endl;
+    REQUIRE(count == 0);
 }
