@@ -11,7 +11,12 @@ find_package(rxcpp CONFIG REQUIRED)
 
 file(GLOB SOURCES "*.cpp" "*.cc")
 
-add_executable(test ${SOURCES})
-target_link_libraries(test PRIVATE Threads::Threads)
-target_link_libraries(test PRIVATE Catch2::Catch2 Catch2::Catch2WithMain)
-target_link_libraries(test PRIVATE rxcpp)
+add_executable(fun ${SOURCES})
+target_link_libraries(fun PRIVATE Threads::Threads)
+target_link_libraries(fun PRIVATE Catch2::Catch2 Catch2::Catch2WithMain)
+target_link_libraries(fun PRIVATE rxcpp)
+
+# # Integrate Catch2 with CTest
+include(CTest)
+include(Catch)
+catch_discover_tests(fun)
