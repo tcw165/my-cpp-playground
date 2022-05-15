@@ -22,6 +22,9 @@ target_link_libraries(fun PRIVATE rxcpp)
 # target_link_libraries(fun PRIVATE Boost::boost)
 # target_link_libraries(fun PRIVATE Folly::folly Folly::folly_deps Folly::follybenchmark Folly::folly_test_util)
 
+# In order to use std::variant, ..., etc.
+target_compile_features(fun PRIVATE cxx_std_17)
+
 # Integrate Catch2 with CTest
 # include(CTest)
 # include(Catch)
