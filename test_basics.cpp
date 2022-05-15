@@ -4,13 +4,13 @@
 class Counter
 {
 public:
-    explicit Counter(std::function<void()> ctor, std::function<void()> dtor) : ctor_(std::move(ctor)), dtor_(std::move(dtor)) {
-        std::cerr << "Counter() called" << std::endl;
+    explicit Counter(std::function<void()> ctor, std::function<void()> dtor) : ctor_(std::move(ctor)), dtor_(std::move(dtor))
+    {
         ctor_();
     };
 
-    ~Counter() {
-        std::cerr << "~Counter() called" << std::endl;
+    ~Counter()
+    {
         dtor_();
     };
 
@@ -21,12 +21,8 @@ public:
 class Foo
 {
 public:
-    explicit Foo(std::function<void()> ctor, std::function<void()> dtor) : foo_(std::make_unique<Counter>(std::move(ctor), std::move(dtor))) {
-        std::cerr << "Foo() called" << std::endl;
-    };
-    ~Foo() {
-        std::cerr << "~Foo() called" << std::endl;
-    };
+    explicit Foo(std::function<void()> ctor, std::function<void()> dtor) : foo_(std::make_unique<Counter>(std::move(ctor), std::move(dtor))){};
+    ~Foo(){};
 
     std::unique_ptr<Counter> foo_;
 };
@@ -34,8 +30,14 @@ public:
 SCENARIO("class member is recycled automatically", "[Basic]")
 {
     auto count = 0;
-    auto increment = [&] { ++count; std::cerr << "ctor() called" << std::endl; };
-    auto decrement = [&] { --count; std::cerr << "dtor() called" << std::endl; };
+    auto increment = [&]
+    {
+        ++count;
+    };
+    auto decrement = [&]
+    {
+        --count;
+    };
 
     {
         Foo tester(increment, decrement);
@@ -47,11 +49,15 @@ SCENARIO("class member is recycled automatically", "[Basic]")
 SCENARIO("unamed object gets destroyed after eval", "[Basic]")
 {
     auto count = 0;
-    auto increment = [&] { ++count; std::cerr << "ctor() called" << std::endl; };
-    auto decrement = [&] { --count; std::cerr << "dtor() called" << std::endl; };
+    auto increment = [&]
+    {
+        ++count;
+    };
+    auto decrement = [&]
+    {
+        --count;
+    };
 
-    std::cerr << "before unamed object instantiation" << std::endl;
-    Counter{ increment, decrement };
-    std::cerr << "after unamed object instantiation" << std::endl;
+    Counter{increment, decrement};
     REQUIRE(count == 0);
 }
