@@ -26,6 +26,6 @@ target_link_libraries(fun PRIVATE rxcpp)
 target_compile_features(fun PRIVATE cxx_std_17)
 
 # Integrate Catch2 with CTest
-# include(CTest)
-# include(Catch)
-# catch_discover_tests(fun)
+include(CTest)
+include(Catch)
+catch_discover_tests(fun)
