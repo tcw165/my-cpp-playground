@@ -7,7 +7,6 @@ struct poly_visitor
 {
     void operator()(const int &v)
     {
-        UNSCOPED_INFO("visiting int");
         common_visitor(v);
     }
     void operator()(const std::string &v)
@@ -17,8 +16,7 @@ struct poly_visitor
     template <typename T>
     void common_visitor(const T &v)
     {
-        UNSCOPED_INFO("visiting " << v);
-        std::cerr << "visiting " << v << std::endl;
+        // std::cerr << "visiting " << v << std::endl;
     }
 };
 
@@ -42,6 +40,5 @@ SCENARIO("Visit std::variant with std::visit()", "[meta programming][runtime pol
 
 SCENARIO("Visit std::variant with template function", "[meta programming][runtime polymorphism]")
 {
-    with_if<int>(std::variant<int, std::string>(111), [](const auto &v)
-                 { std::cerr << "visiting " << v << std::endl; });
+    with_if<int>(std::variant<int, std::string>(111), [](const auto &v) { /* std::cerr << "visiting " << v << std::endl; */ });
 }
