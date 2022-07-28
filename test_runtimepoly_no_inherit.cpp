@@ -5,8 +5,10 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <sstream>
 #include <thread>
 #include <type_traits>
+#include <typeinfo>
 #include <variant>
 
 /// Forward decl for overloaded impl.
@@ -25,13 +27,14 @@ namespace detail
     template <typename T>
     Drawable(T actual) : self_(std::make_unique<PolymorphicDrawable<T>>(actual))
     {
-      std::cerr << "ctor" << std::endl;
+      std::cerr << "ctor(" << self_->print_() << ")" << std::endl;
     }
 
     /// Copy ctor
     Drawable(const Drawable &other) : self_(other.self_->copy_())
     {
-      std::cerr << "copy" << std::endl;
+      auto content = other.self_ ? other.self_->print_() : "null";
+      std::cerr << "copy(" << content << ")" << std::endl;
     }
     /// Move ctor
     Drawable(Drawable &&) noexcept = default;
@@ -58,6 +61,7 @@ namespace detail
       /// destructing a base class's pointer.
       virtual ~DrawableConcept() = default;
       virtual auto copy_() -> std::unique_ptr<DrawableConcept> const = 0;
+      virtual auto print_() -> std::string const = 0;
       virtual void draw_(std::ostream &, size_t) const = 0;
     };
 
@@ -69,6 +73,13 @@ namespace detail
       auto copy_() -> std::unique_ptr<DrawableConcept> const override
       {
         return std::make_unique<PolymorphicDrawable<T>>(*this);
+      }
+
+      auto print_() -> std::string const override
+      {
+        std::ostringstream oss;
+        oss << typeid(model_).name();
+        return oss.str();
       }
 
       void draw_(std::ostream &out, size_t position) const override
@@ -87,13 +98,13 @@ namespace detail
 
 /// Use case
 
-void draw(const std::vector<detail::Drawable> &drawables, std::ostream &out, size_t position = 0)
+void draw(const std::vector<detail::Drawable> &drawables, std::ostream &out)
 {
   out << "<drawable>" << std::endl;
   for (auto it = drawables.begin(); it != drawables.end(); ++it)
   {
-    auto position = std::distance(drawables.begin(), it);
-    draw(*it, std::cout << "  ", position);
+    auto pos = std::distance(drawables.begin(), it);
+    draw(*it, std::cout << "  ", pos);
   }
   out << "</drawable>" << std::endl;
 }
@@ -124,12 +135,12 @@ SCENARIO("Simulate an engine that uses executors via runtime-polymorphism withou
   {
     std::vector<detail::Drawable> drawables;
 
-    drawables.push_back(0);
-    // TODO(TC): Fix the infinite recursion.
+    drawables.emplace_back(0);
+    drawables.emplace_back("hello");
+    // std::cerr << "!!!! push_back(drawables)" << std::endl;
     // drawables.push_back(drawables);
-    drawables.push_back("hello");
-    drawables.push_back(1);
-    drawables.push_back(FooDrawable{});
+    // drawables.push_back(1);
+    // drawables.push_back(FooDrawable{});
 
     draw(drawables, std::cerr);
   }
